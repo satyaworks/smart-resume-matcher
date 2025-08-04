@@ -1,9 +1,6 @@
-torch==2.0.1
+streamlit
 sentence-transformers
 faiss-cpu
 pandas
 numpy
-streamlit
 pdfplumber
-sqlalchemy
-psycopg2-binary
