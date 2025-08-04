@@ -1,8 +1,9 @@
-streamlit
-pdfplumber
-pandas
-numpy
+torch==2.0.1
 sentence-transformers
 faiss-cpu
+pandas
+numpy
+streamlit
+pdfplumber
 sqlalchemy
 psycopg2-binary
