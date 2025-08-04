@@ -9,15 +9,16 @@ import faiss
 import io
 import re
 import datetime
+import torch
 from sqlalchemy import create_engine, Table, Column, String, Float, MetaData
 
 st.set_page_config(page_title="Smart Resume Matcher", layout="wide")
 
-# Load model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Load model (force CPU to avoid Streamlit GPU error)
+model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
 # PostgreSQL DB setup
-DATABASE_URL = st.secrets["DATABASE_URL"]  # Define in Streamlit Cloud or .streamlit/secrets.toml
+DATABASE_URL = st.secrets["DATABASE_URL"]
 engine = create_engine(DATABASE_URL)
 metadata = MetaData()
 
