@@ -6,19 +6,31 @@ import numpy as np
 import faiss
 import io
 import re
-import datetime
-import torch
 
 st.set_page_config(page_title="Simple Resume Matcher")
 
-# Load model (force CPU for Streamlit Cloud)
+# Load sentence transformer model (CPU only)
 model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
 # Helper function to extract keywords
 def extract_keywords(text):
     words = re.findall(r'\b\w+\b', text.lower())
-    stopwords = set(["and", "or", "with", "in", "on", "the", "a", "an", "to", "of", "for", "we", "you", "are", "is", "looking", "need", "have", "has"])
+    stopwords = set([
+        "and", "or", "with", "in", "on", "the", "a", "an", "to", "of", "for",
+        "we", "you", "are", "is", "looking", "need", "have", "has"
+    ])
     return set([w for w in words if w not in stopwords and len(w) > 2])
+
+# Load jobs.csv (for dropdown)
+@st.cache_data
+def load_job_descriptions():
+    try:
+        df = pd.read_csv("jobs.csv")
+        return df
+    except:
+        return pd.DataFrame(columns=["id", "description"])
+
+job_df = load_job_descriptions()
 
 # Streamlit UI
 st.title("🧠 Simple Resume Matcher")
@@ -26,9 +38,23 @@ st.title("🧠 Simple Resume Matcher")
 uploaded_jd = st.file_uploader("📄 Upload Job Description (PDF)", type=["pdf"])
 uploaded_resumes = st.file_uploader("📁 Upload Resume PDFs", type=["pdf"], accept_multiple_files=True)
 
-if st.button("🔍 Match Resumes") and uploaded_jd and uploaded_resumes:
-    with pdfplumber.open(io.BytesIO(uploaded_jd.read())) as jd_pdf:
-        job_text = ''.join([page.extract_text() or "" for page in jd_pdf.pages])
+# Dropdown job description
+selected_job = None
+if not uploaded_jd and not job_df.empty:
+    jd_options = job_df["description"].tolist()
+    selected_job = st.selectbox("🧾 Or Select a Job Description", [""] + jd_options)
+
+# Main matching logic
+if st.button("🔍 Match Resumes") and uploaded_resumes and (uploaded_jd or selected_job):
+    # Load job description
+    if uploaded_jd:
+        with pdfplumber.open(io.BytesIO(uploaded_jd.read())) as jd_pdf:
+            job_text = ''.join([page.extract_text() or "" for page in jd_pdf.pages])
+    elif selected_job:
+        job_text = selected_job
+    else:
+        st.error("Please provide a job description.")
+        st.stop()
 
     jd_keywords = extract_keywords(job_text)
     job_embedding = model.encode([job_text])
