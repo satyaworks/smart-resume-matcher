@@ -22,12 +22,12 @@ def extract_keywords(text):
     return set([w for w in words if w not in stopwords and len(w) > 2])
 
 # UI
-st.title("🧠 Simple Resume Matcher")
+st.title("🧠 Smart Resume Matcher")
 
 uploaded_jd = st.file_uploader("📄 Upload Job Description (PDF)", type=["pdf"])
 uploaded_resumes = st.file_uploader("📁 Upload Resume PDFs", type=["pdf"], accept_multiple_files=True)
 
-threshold_str = st.selectbox("Select Minimum Match Score", ["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"])
+threshold_str = st.selectbox("Select Minimum Match Score", ["0.2","0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"])
 threshold = float(threshold_str)
 
 if st.button("🔍 Match Resumes") and uploaded_jd and uploaded_resumes:
