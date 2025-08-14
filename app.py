@@ -6,6 +6,7 @@ import numpy as np
 import faiss
 import io
 import re
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Simple Resume Matcher")
 
@@ -82,5 +83,15 @@ if st.button("🔍 Match Resumes") and uploaded_resumes and (uploaded_jd or sele
     st.subheader("🎯 Match Results")
     st.dataframe(df, use_container_width=True)
 
+    # Chart visualization
+    st.subheader("📊 Match Score Chart")
+    fig, ax = plt.subplots()
+    ax.barh(df["Resume"], df["Match Score"], color="skyblue")
+    ax.set_xlabel("Match Score")
+    ax.set_ylabel("Resumes")
+    ax.invert_yaxis()
+    st.pyplot(fig)
+
+    # Download button
     csv_data = df.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Results as CSV", data=csv_data, file_name="resume_match_results.csv", mime="text/csv")
